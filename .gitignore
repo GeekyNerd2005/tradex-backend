@@ -19,3 +19,7 @@ out/
 # Secrets
 appsettings.Development.json
 .env
+# SQLite database files
+*.db
+*.db-wal
+*.db-shm
