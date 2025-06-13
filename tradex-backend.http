@@ -1,0 +1,6 @@
+@tradex_backend_HostAddress = http://localhost:5007
+
+GET {{tradex_backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
