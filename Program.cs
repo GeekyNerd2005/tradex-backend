@@ -29,9 +29,11 @@ builder.Services.AddCors(options =>
 // DB
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "tradex.db");
-    options.UseSqlite($"Data Source={dbPath}");
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+    options.UseNpgsql(connectionString);
 });
+
 
 // SignalR
 builder.Services.AddSignalR();
