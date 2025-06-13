@@ -119,8 +119,9 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseCors("AllowAll");
+
 app.UseRouting(); // ✅ Needed before UseAuthentication
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
