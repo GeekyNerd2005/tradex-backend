@@ -1,0 +1,21 @@
+## Ignore Visual Studio temporary files, build results, and
+## user-generated files
+
+# Build folders
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+
+# VS Code settings
+.vscode/
+
+# Logs
+*.log
+
+# Secrets
+appsettings.Development.json
+.env
