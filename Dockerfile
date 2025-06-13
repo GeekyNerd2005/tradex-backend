@@ -1,24 +1,21 @@
-# Stage 1: Build the app
+# Use official .NET SDK image to build the app
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
-# Copy csproj and restore dependencies
+# Copy csproj and restore as distinct layers
 COPY *.csproj ./
 RUN dotnet restore
 
-# Copy all source files and publish
+# Copy everything else and build
 COPY . ./
 RUN dotnet publish -c Release -o out
 
-# Stage 2: Create runtime image
+# Final runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
+COPY --from=build /app/out .
 
-# Copy published files from build stage
-COPY --from=build /app/out ./
+# Expose port (adjust if using a different port in your appsettings)
+EXPOSE 5001
 
-# Expose port your app listens on (adjust if needed)
-EXPOSE 5000
-
-# Start the application (replace YourProject.dll with your actual dll)
 ENTRYPOINT ["dotnet", "tradex-backend.dll"]
