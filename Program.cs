@@ -17,12 +17,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials(); // ✅ Needed for SignalR
+              .AllowAnyMethod();
     });
 });
 
@@ -120,8 +119,7 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseCors("AllowFrontend");
-
+app.UseCors("AllowAll");
 app.UseRouting(); // ✅ Needed before UseAuthentication
 app.UseAuthentication();
 app.UseAuthorization();
