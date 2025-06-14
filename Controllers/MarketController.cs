@@ -25,7 +25,7 @@ public class MarketController : ControllerBase
         {
             var token = HttpContext.Request.Headers["Authorization"].ToString();
 
-            var request = new HttpRequestMessage(HttpMethod.Get, $"http://localhost:5050/price?ticker={ticker}");
+var request = new HttpRequestMessage(HttpMethod.Get, $"https://tradex-candle-api.onrender.com/price?ticker={ticker}");
             request.Headers.Add("Authorization", token); // Forward the JWT
 
             var response = await _httpClient.SendAsync(request);
@@ -78,7 +78,7 @@ public async Task<IActionResult> GetCandlestickData(string ticker, [FromQuery] s
     try
     {
         using var client = new HttpClient();
-        var url = $"http://localhost:8000/candles/{ticker}?range={range}&interval={interval}";
+        var url = $"https://tradex-candle-api.onrender.com/candles/{ticker}?range={range}&interval={interval}";
         var response = await client.GetAsync(url);
 
         if (!response.IsSuccessStatusCode)
