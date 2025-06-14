@@ -17,13 +17,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("https://tradex-frontend-seven.vercel.app")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
+
 
 // DB
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -106,7 +107,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddHostedService<PortfolioSnapshotService>();
 
 // Start app
-builder.WebHost.UseUrls("http://0.0.0.0:5001");
+//builder.WebHost.UseUrls("http://0.0.0.0:5001");
 var app = builder.Build();
 
 // Migrate DB
@@ -121,7 +122,7 @@ app.UseSwaggerUI();
 
 
 app.UseRouting(); // ✅ Needed before UseAuthentication
-app.UseCors("AllowAll");
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
