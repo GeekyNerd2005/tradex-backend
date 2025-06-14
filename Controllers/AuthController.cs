@@ -3,7 +3,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using tradex_backend.Data;
 using tradex_backend.Models;
 using BCrypt.Net;
 
@@ -30,7 +29,7 @@ public class AuthController : ControllerBase
             return BadRequest("Username already exists");
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-        var user = new User { Username = request.Username, PasswordHash = passwordHash };
+        var user = new User { Username = request.Username, PasswordHash = passwordHash, Balance = 1000000 };
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();

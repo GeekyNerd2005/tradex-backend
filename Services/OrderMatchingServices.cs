@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using tradex_backend.Data;
 using tradex_backend.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
@@ -100,7 +99,6 @@ public class OrderMatchingService : BackgroundService
                 var executionPrice = ResolveExecutionPrice(buy, sell, marketPrice);
                 var now = DateTime.UtcNow;
 
-                // Get average buy price of seller to calculate realized PnL
 var sellerHolding = await db.Holdings
     .AsNoTracking()
     .FirstOrDefaultAsync(h => h.UserId == sell.UserId && h.Symbol == sell.Symbol);
@@ -129,6 +127,19 @@ db.Trades.Add(new Trade
                 sell.ExecutedPrice = executionPrice;
                 sell.ExecutedAt = now;
                 if (sell.Quantity <= 0) sell.Status = OrderStatus.Executed;
+                var totalProceeds = matchedQty * executionPrice;
+                var seller = await db.Users.FirstOrDefaultAsync(u => u.Id == int.Parse(sell.UserId));
+
+                if (seller != null)
+                {
+                    seller.Balance += totalProceeds;
+                    await db.SaveChangesAsync();
+                        await _portfolioHub.Clients.Group(sell.UserId)
+                        .SendAsync("FundsUpdated", new
+                        {
+                            Balance = seller.Balance
+                        });
+                }
 
                 await UpdateHoldings(db, buy.UserId, buy.Symbol, matchedQty, executionPrice, true);
                 await UpdateHoldings(db, sell.UserId, sell.Symbol, matchedQty, executionPrice, false);

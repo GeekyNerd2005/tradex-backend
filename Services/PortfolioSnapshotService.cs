@@ -1,4 +1,3 @@
-using tradex_backend.Data;
 using Microsoft.EntityFrameworkCore;
 using tradex_backend.Models;
 using System.Text.Json;

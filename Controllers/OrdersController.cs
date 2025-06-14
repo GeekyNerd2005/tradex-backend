@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using tradex_backend.Data;
 using tradex_backend.Dtos;
 using tradex_backend.Models;
 using Microsoft.EntityFrameworkCore;
@@ -23,32 +22,48 @@ namespace tradex_backend.Controllers
         }
 
         [HttpPost("place")]
-        public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderDto dto)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-                return Unauthorized();
+public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderDto dto)
+{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    if (userId == null)
+        return Unauthorized();
 
-            var order = new Order
-            {
-                UserId = userId,
-                Symbol = dto.Symbol.ToUpper(),
-                Side = dto.Side,
-                Type = dto.Type,
-                Quantity = dto.Quantity,
-                Price = dto.Price,
-                StopPrice = dto.StopPrice,
-                Status = OrderStatus.Pending,
-                OriginalQuantity = dto.Quantity
+    if (!int.TryParse(userId, out int userIdInt))
+        return Unauthorized();
 
-            };
+    var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userIdInt);
+    if (user == null)
+        return Unauthorized();
 
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-            await BroadcastOrderBook(order.Symbol);
-            return CreatedAtAction(nameof(PlaceOrder), new { id = order.Id }, order);
+    var totalCost = dto.Quantity * dto.Price;
 
-        }
+    if (dto.Side == OrderSide.Buy)
+    {
+        if (user.Balance < totalCost)
+            return BadRequest("Insufficient funds to place this buy order.");
+
+        user.Balance -= totalCost;
+    }
+
+    var order = new Order
+    {
+        UserId = userId,
+        Symbol = dto.Symbol.ToUpper(),
+        Side = dto.Side,
+        Type = dto.Type,
+        Quantity = dto.Quantity,
+        Price = dto.Price,
+        StopPrice = dto.StopPrice,
+        Status = OrderStatus.Pending,
+        OriginalQuantity = dto.Quantity
+    };
+
+    _context.Orders.Add(order);
+    await _context.SaveChangesAsync();
+    await BroadcastOrderBook(order.Symbol);
+    return CreatedAtAction(nameof(PlaceOrder), new { id = order.Id }, order);
+}
+
         [HttpGet("history")]
         [Authorize]
         public async Task<IActionResult> GetOrderHistory()
@@ -120,6 +135,16 @@ namespace tradex_backend.Controllers
 
             if (order.Status != OrderStatus.Pending)
                 return BadRequest(new { message = "Only pending orders can be cancelled." });
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == int.Parse(userId));
+            if (user == null)
+                return Unauthorized();
+
+            // Refund logic for BUY orders only
+            if (order.Side == OrderSide.Buy && order.Price.HasValue)
+            {
+                double refundAmount = order.Quantity * order.Price.Value;
+                user.Balance += refundAmount;
+            }
 
             order.Status = OrderStatus.Cancelled;
             await _context.SaveChangesAsync();

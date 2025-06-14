@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using tradex_backend.Data;
 using tradex_backend.Models;
 using tradex_backend.Dtos;
 using System.Text.Json;

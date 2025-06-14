@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using tradex_backend.Data;
 using Microsoft.EntityFrameworkCore;
-
+using tradex_backend.Models;
 namespace tradex_backend.Controllers
 {
     [ApiController]

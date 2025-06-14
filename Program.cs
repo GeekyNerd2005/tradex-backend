@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using tradex_backend.Data;
+using tradex_backend.Models;
 using Microsoft.OpenApi.Models;
 using tradex_backend.hubs;
 using System.IdentityModel.Tokens.Jwt;
@@ -19,21 +19,19 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("https://tradex-frontend-seven.vercel.app")
+        policy.WithOrigins("http://localhost:3000")
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials(); // ✅ Needed for SignalR
     });
 });
-
 
 // DB
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-    options.UseNpgsql(connectionString);
+    var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "tradex.db");
+    options.UseSqlite($"Data Source={dbPath}");
 });
-
 
 // SignalR
 builder.Services.AddSignalR();
@@ -107,7 +105,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddHostedService<PortfolioSnapshotService>();
 
 // Start app
-//builder.WebHost.UseUrls("http://0.0.0.0:5001");
+builder.WebHost.UseUrls("http://0.0.0.0:5001");
 var app = builder.Build();
 
 // Migrate DB
@@ -120,9 +118,9 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseCors("AllowFrontend");
 
 app.UseRouting(); // ✅ Needed before UseAuthentication
-app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
