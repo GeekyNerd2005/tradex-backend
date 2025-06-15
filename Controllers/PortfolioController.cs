@@ -72,7 +72,6 @@ public class PortfolioController : ControllerBase
             return null;
         }
     }
-    // Controllers/PortfolioController.cs
     [HttpGet("value-history/{userId}")]
     public async Task<IActionResult> GetPortfolioValueHistory(string userId)
     {
@@ -105,7 +104,7 @@ public class PortfolioController : ControllerBase
             BreakevenTrades = breakevenTrades,
             NetRealizedPnL = totalPnL
         });
-    }  //add winloss chart later
+    }  
 
 
 }

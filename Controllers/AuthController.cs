@@ -48,7 +48,8 @@ public class AuthController : ControllerBase
         var response = new AuthResponse
         {
             Token = token,
-            UserId = user.Id
+            UserId = user.Id,
+            Username = user.Username
         };
 
         return Ok(response);
@@ -58,6 +59,7 @@ public class AuthController : ControllerBase
     {
         public string Token { get; set; }
         public int UserId { get; set; }
+        public string Username { get; set; }
     }
 
     private string CreateToken(User user)

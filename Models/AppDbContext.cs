@@ -7,7 +7,6 @@ public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) 
     {
-        // ✅ Enable WAL mode to allow concurrent reads/writes in SQLite
         if (Database.IsSqlite())
         {
             Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");

@@ -15,7 +15,7 @@ namespace tradex_backend.hubs
             if (string.IsNullOrEmpty(userId))
             {
                 await Clients.Caller.SendAsync("Error", "User ID not found in token.");
-                Context.Abort(); // Close the connection
+                Context.Abort(); 
                 return;
             }
 

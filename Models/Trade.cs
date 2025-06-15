@@ -11,7 +11,6 @@ namespace tradex_backend.Models
         public DateTime ExecutedAt { get; set; }
         public double RealizedPnL { get; set; }
 
-        // Foreign keys
         public int BuyerId { get; set; }
         public User Buyer { get; set; }
 

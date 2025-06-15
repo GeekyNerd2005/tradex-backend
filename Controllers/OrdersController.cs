@@ -10,7 +10,7 @@ namespace tradex_backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]  // ✅ THIS is what was missing!
+    [Authorize]  
     public class OrdersController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -72,7 +72,7 @@ public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderDto dto)
 
             var orders = await _context.Orders
                 .Where(o => o.UserId == userId)
-                .OrderByDescending(o => o.CreatedAt) // Optional: sort latest first
+                .OrderByDescending(o => o.CreatedAt) 
                 .ToListAsync();
 
             return Ok(orders);
@@ -89,7 +89,7 @@ public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderDto dto)
                     o.Side == OrderSide.Buy &&
                     o.Status == OrderStatus.Pending &&
                     o.Quantity > 0 &&
-                    o.Price != null) // exclude market orders
+                    o.Price != null) 
                 .GroupBy(o => o.Price)
                 .Select(g => new
                 {
@@ -105,7 +105,7 @@ public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderDto dto)
                     o.Side == OrderSide.Sell &&
                     o.Status == OrderStatus.Pending &&
                     o.Quantity > 0 &&
-                    o.Price != null) // exclude market orders
+                    o.Price != null) 
                 .GroupBy(o => o.Price)
                 .Select(g => new
                 {
@@ -139,7 +139,7 @@ public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderDto dto)
             if (user == null)
                 return Unauthorized();
 
-            // Refund logic for BUY orders only
+            
             if (order.Side == OrderSide.Buy && order.Price.HasValue)
             {
                 double refundAmount = order.Quantity * order.Price.Value;

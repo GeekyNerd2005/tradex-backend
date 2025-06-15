@@ -9,11 +9,11 @@ using System.IdentityModel.Tokens.Jwt;
 using tradex_backend.services;
 using Microsoft.AspNetCore.SignalR;
 
-JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // 🔥 REQUIRED
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// CORS
+
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
 {
@@ -22,26 +22,22 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:3000")
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials(); // ✅ Needed for SignalR
+              .AllowCredentials(); 
     });
 });
 
-// DB
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "tradex.db");
-    options.UseSqlite($"Data Source={dbPath}");
+    options.UseSqlite($"Data Source=/Users/sasmitjha/tradex/TradeX/backend/tradex.db");
 });
 
-// SignalR
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IUserIdProvider, NameIdentifierUserIdProvider>();
 
-// Hosted services
 builder.Services.AddHttpClient();
 builder.Services.AddHostedService<OrderMatchingService>();
 
-// Auth
 var key = builder.Configuration["Jwt:Key"] ?? "this is my secret key";
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -54,7 +50,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false
         };
 
-        // ✅ Needed for SignalR auth over WebSockets
         options.Events = new JwtBearerEvents
 {
     OnMessageReceived = context =>
@@ -62,7 +57,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         var accessToken = context.Request.Query["access_token"];
         var path = context.HttpContext.Request.Path;
 
-        // ✅ Allow token for both hubs
         if (!string.IsNullOrEmpty(accessToken) &&
             (path.StartsWithSegments("/hubs/portfolio") || path.StartsWithSegments("/hubs/orderbook")))
         {
@@ -75,7 +69,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
     });
 
-// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -104,11 +97,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 builder.Services.AddHostedService<PortfolioSnapshotService>();
 
-// Start app
 builder.WebHost.UseUrls("http://0.0.0.0:5001");
 var app = builder.Build();
 
-// Migrate DB
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -120,7 +111,7 @@ app.UseSwaggerUI();
 
 app.UseCors("AllowFrontend");
 
-app.UseRouting(); // ✅ Needed before UseAuthentication
+app.UseRouting(); 
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

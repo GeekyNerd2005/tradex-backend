@@ -78,6 +78,9 @@ public async Task<IActionResult> GetCandlestickData(string ticker, [FromQuery] s
     try
     {
         using var client = new HttpClient();
+         client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0");
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
         var url = $"http://localhost:8000/candles/{ticker}?range={range}&interval={interval}";
         var response = await client.GetAsync(url);
 

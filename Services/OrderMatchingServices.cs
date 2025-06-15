@@ -54,7 +54,7 @@ public class OrderMatchingService : BackgroundService
                 await db.SaveChangesAsync();
             }
 
-            await Task.Delay(1000, stoppingToken); // 1 second loop for faster testing
+            await Task.Delay(1000, stoppingToken); 
         }
     }
 
@@ -235,7 +235,7 @@ db.Trades.Add(new Trade
                 (order.Side == OrderSide.Buy && marketPrice >= order.StopPrice) ||
                 (order.Side == OrderSide.Sell && marketPrice <= order.StopPrice),
 
-            _ => true // Limit and Market orders always eligible
+            _ => true 
         };
     }
 
@@ -281,10 +281,8 @@ db.Trades.Add(new Trade
         }
     }
     
-    // Save changes BEFORE broadcasting
     await db.SaveChangesAsync();
 
-    // ✅ Broadcast updated holdings
     var updatedHoldings = await db.Holdings
         .Where(h => h.UserId == userId)
         .ToListAsync();
